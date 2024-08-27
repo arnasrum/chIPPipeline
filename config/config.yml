@@ -1,0 +1,2 @@
+fasterq-dump:
+  - n_reads: 100000
