@@ -5,4 +5,4 @@ trimgalore:
   adapter: "AAAA"
 
 bowtie2:
-  trimmer: "cutadapt"
+  trimmer: "trimgalore"

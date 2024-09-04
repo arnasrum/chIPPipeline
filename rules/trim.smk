@@ -3,7 +3,7 @@ rule trimgalore_pe:
 		"reads/{id}_1.fastq",
 		"reads/{id}_2.fastq",
 	output:
-		["output/trimgalore/{id}_val_1.fq", "output/trimgalore/{id}_val_2.fq"]
+		["output/trimgalore/{id}_1.fastq", "output/trimgalore/{id}_2.fastq"]
 	params:
 		outputPath = "output/trimgalore",
 		#name = f"{{id}}_trimmed"
@@ -11,6 +11,8 @@ rule trimgalore_pe:
 	shell:
 		"""
 		trim_galore --paired --no_report_file -o {params.outputPath} --basename {params.name} {input} 
+		mv ./{params.outputPath}/{wildcards.id}_val_1.fq ./{params.outputPath}/{wildcards.id}_1.fastq
+		mv ./{params.outputPath}/{wildcards.id}_val_2.fq ./{params.outputPath}/{wildcards.id}_2.fastq
 		"""
 
 rule cutadapt_pe: 
