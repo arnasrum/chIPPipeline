@@ -23,8 +23,7 @@ def getaccessionsGSMtoSRR(filename="input.txt", write_to_file=False):
             for sra in sra_accession.values:
                 result = f"{sra}_{sra_info}"
                 srr_accessions.append([sra, result])
-                if write_to_file:
-                    writefile.write(f"{sra} {result}\n")
+                writefile.write(f"{sra} {result}\n")
     return srr_accessions
 
 if __name__=="__main__":
