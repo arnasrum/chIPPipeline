@@ -1,7 +1,7 @@
-name cutadapt:
+name ffq:
 channels:
   - bioconda
   - conda-forge
 dependencies:
   - python==3.12.5
-  - cutadapt=4.9
+  - ffq==0.3.1
