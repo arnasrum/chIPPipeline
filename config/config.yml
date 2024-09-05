@@ -1,8 +1,12 @@
-fasterq-dump:
-  - n_reads: 100000
-
 trimgalore:
   adapter: "AAAA"
+  args: "--fastqc"
 
-bowtie2:
+cutadapt:
+  args: ""
+
+fastp:
+  args: ""
+
+alignment:
   trimmer: "trimgalore"
