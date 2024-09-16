@@ -1,6 +1,10 @@
+fasterq-dump:
+  downloadPath: "resources/reads"
+  args: ""
+
 trimgalore:
-  adapter: "AAAA"
-  args: "--fastqc"
+  inputPath: "resources/reads"
+  args: ""
 
 cutadapt:
   args: ""
@@ -9,4 +13,4 @@ fastp:
   args: ""
 
 alignment:
-  trimmer: "trimgalore"
+  trimmer: "fastp"
