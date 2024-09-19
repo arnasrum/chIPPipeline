@@ -1,9 +1,34 @@
+import sys
+sys.path.append("workflow/scripts")
+from sampleFileScripts import parseAllFilePaths
+from sampleFileScripts import parseAllFileNames
+
+
 configfile: "config/config.yml"
 
 include: "rules/fastqc.smk"
-include: "rules/trim.smk"
 include: "rules/align.smk"
-include: "rules/download.smk"
 
-module download_workflow:
-    snakefile: "./reads/download.smk"
+module downloadWorkflow:
+    snakefile: "rules/download.smk"
+    config: config["downloadWorkflow"]
+
+
+module trimWorkflow:
+    snakefile: "rules/trim.smk"
+    config: config["trimmingWorkflow"]
+
+
+use rule * from downloadWorkflow
+use rule * from trimWorkflow as trim_*
+
+
+
+rule downloadAllSamples:
+    input:
+        *parseAllFilePaths()
+
+trimmer = config["workflow"]["trimmer"]
+rule trim:
+    input:
+        list(map(lambda fileName: f"results/{trimmer}/{fileName}", parseAllFileNames()))

@@ -1,16 +1,22 @@
-fasterq-dump:
-  downloadPath: "resources/reads"
-  args: ""
+downloadWorkflow:
+  fasterq-dump:
+    downloadPath: "resources/reads"
+    args: ""
 
-trimgalore:
-  inputPath: "resources/reads"
-  args: ""
+trimmingWorkflow:
+  trimgalore:
+    inputPath: "resources/reads"
+    args: ""
 
-cutadapt:
-  args: ""
+  cutadapt:
+    args: ""
 
-fastp:
-  args: ""
+  fastp:
+    args: ""
 
 alignment:
-  trimmer: "fastp"
+  trimmer: "trimgalore"
+
+workflow:
+  trimmer: "cutadapt"
+  aligner: "bowtie2"

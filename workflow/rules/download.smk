@@ -1,11 +1,9 @@
 import sys
+sys.path.append("workflow/scripts")
 import pandas as pd
-sys.path.append("./workflow/scripts")
 from sampleFileScripts import parseSampleFile
 
-outdir = "resources/reads"
-
-def unpack(files, outdir):
+def unpack(files, outdir="resources/reads"):
     if len(files) == 1:
         return [f"{outdir}/{files[0]}"]
     if len(files) == 2:
@@ -14,12 +12,13 @@ def unpack(files, outdir):
 for fileInfo in parseSampleFile():
     rule:
         output:
-            unpack(fileInfo["outputFiles"], outdir)
+            unpack(fileInfo["outputFiles"])
         params:
             args = config["fasterq-dump"]["args"],
+            outdir = config["fasterq-dump"]["downloadPath"],
             accession = fileInfo["accession"],
             fileName = fileInfo["fileName"]
         shell:
             '''
-            fasterq-dump -t temp -p -O {outdir} -o {params.args} {params.fileName} {params.accession}
+            fasterq-dump -t temp -p -O {params.outdir} -o {params.fileName} {params.accession}
             '''

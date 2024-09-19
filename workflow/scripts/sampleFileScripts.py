@@ -6,7 +6,7 @@ import os
 
 def parseSampleFile():
     '''
-        Parses sample.csv file and return paths for the desired files
+        Parses sample.csv file and returns paths for the desired files
     '''
     fileNames = []
     if not os.path.isfile("config/samples.csv"):
@@ -22,6 +22,40 @@ def parseSampleFile():
             else:
                 fileNames.append({"accession": accession, "fileName": fileName, "outputFiles": (f"{fileName}.fastq")})
     return fileNames
+
+def parseAllFilePaths():
+    if not os.path.isfile("config/samples.csv"):
+        generateSampleFile()
+    outdir = "resources/reads"
+    filePaths = []
+    with open("config/samples.csv", "r") as file:
+        table = pd.read_csv(file)
+        for _, row in table.iterrows():
+            fileName = row["filename"]
+            libraryLayout = row["libraryLayout"]
+            if libraryLayout == "PAIRED":
+                filePaths.append(f"{outdir}/{fileName}_1.fastq")
+                filePaths.append(f"{outdir}/{fileName}_2.fastq")
+            else:
+                filePaths.append(f"{outdir}/{fileName}.fastq")
+    return filePaths
+
+def parseAllFileNames():
+    if not os.path.isfile("config/samples.csv"):
+        generateSampleFile()
+    fileNames = []
+    with open("config/samples.csv", "r") as file:
+        table = pd.read_csv(file)
+        for _, row in table.iterrows():
+            fileName = row["filename"]
+            libraryLayout = row["libraryLayout"]
+            if libraryLayout == "PAIRED":
+                fileNames.append(f"{fileName}_1.fastq")
+                fileNames.append(f"{fileName}_2.fastq")
+            else:
+                fileNames.append(f"{fileName}.fastq")
+    return fileNames
+
 
 def generateSampleFile():
     '''
@@ -49,7 +83,3 @@ def generateSampleFile():
                 writer.writerow(row)
     except FileNotFoundError:
         raise FileNotFoundError("Missing samples.csv file located in config folder. Try adding a samples.csv with a column for desired SRR accessions")
-
-if __name__ == "__main__":
-    generateSampleFile()
-    #print(parseSampleFile())
