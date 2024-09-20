@@ -1,7 +1,7 @@
 import sys
 sys.path.append("workflow/scripts")
-from sampleFileScripts import parseAllFilePaths
-from sampleFileScripts import parseAllFileNames
+from sampleFileScripts import getAllSampleFilePaths
+from sampleFileScripts import getAllSampleFileNames
 
 
 configfile: "config/config.yml"
@@ -31,9 +31,13 @@ use rule * from alignmentWorkflow as align_*
 
 rule downloadAllSamples:
     input:
-        *parseAllFilePaths()
+        *getAllSampleFilePaths()
 
 trimmer = config["workflow"]["trimmer"]
 rule trim:
     input:
-        list(map(lambda fileName: f"results/{trimmer}/{fileName}", parseAllFileNames()))
+        list(map(lambda fileName: f"results/{trimmer}/{fileName}", getAllSampleFileNames()))
+
+rule align:
+    input:
+        

@@ -6,11 +6,16 @@ import os
 
 def parseSampleFile():
     '''
-        Parses sample.csv file and returns paths for the desired files
+        Parses sample.csv file and returns dict for each run id provided
+        with accession numbers for the sample runs,
+        file names for the files that are going be downloaded,
+        and file paths for the desired files
+        (for making a download rule for each file convenient)
     '''
-    fileNames = []
+    fileData = []
     if not os.path.isfile("config/samples.csv"):
-        generateSampleFile()
+       generateSampleFile()
+    outputDirectory = "resources/reads"
     with open("config/samples.csv", "r") as file:
         table = pd.read_csv(file)
         for _, row in table.iterrows():
@@ -18,15 +23,16 @@ def parseSampleFile():
             fileName = row["filename"]
             libraryLayout = row["libraryLayout"]
             if libraryLayout == "PAIRED":
-                fileNames.append({"accession": accession, "fileName": fileName, "outputFiles": (f"{fileName}_1.fastq", f"{fileName}_2.fastq")})
+                fileData.append({"accession": accession, "fileName": fileName, 
+                                  "outputFiles": (f"{outputDirectory}/{fileName}_1.fastq", f"{outputDirectory}/{fileName}_2.fastq")})
             else:
-                fileNames.append({"accession": accession, "fileName": fileName, "outputFiles": (f"{fileName}.fastq")})
-    return fileNames
+                fileData.append({"accession": accession, "fileName": fileName, "outputFiles": (f"{fileName}.fastq")})
+    return fileData
 
-def parseAllFilePaths():
+def getAllSampleFilePaths():
     if not os.path.isfile("config/samples.csv"):
         generateSampleFile()
-    outdir = "resources/reads"
+    outputDirectory = "resources/reads"
     filePaths = []
     with open("config/samples.csv", "r") as file:
         table = pd.read_csv(file)
@@ -34,13 +40,13 @@ def parseAllFilePaths():
             fileName = row["filename"]
             libraryLayout = row["libraryLayout"]
             if libraryLayout == "PAIRED":
-                filePaths.append(f"{outdir}/{fileName}_1.fastq")
-                filePaths.append(f"{outdir}/{fileName}_2.fastq")
+                filePaths.append(f"{outputDirectory}/{fileName}_1.fastq")
+                filePaths.append(f"{outputDirectory}/{fileName}_2.fastq")
             else:
-                filePaths.append(f"{outdir}/{fileName}.fastq")
+                filePaths.append(f"{outputDirectory}/{fileName}.fastq")
     return filePaths
 
-def parseAllFileNames():
+def getAllSampleFileNames():
     if not os.path.isfile("config/samples.csv"):
         generateSampleFile()
     fileNames = []
@@ -82,4 +88,4 @@ def generateSampleFile():
             for row in accessionInfo:
                 writer.writerow(row)
     except FileNotFoundError:
-        raise FileNotFoundError("Missing samples.csv file located in config folder. Try adding a samples.csv with a column for desired SRR accessions")
+        raise FileNotFoundError("Missing input.csv file located in config folder. Try adding a input.csv with a column for desired SRR accessions")
