@@ -8,9 +8,12 @@ rule buildBowtie2Index:
     output:
         expand("results/bowtie2-build/{genome}.{extension}", extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], genome=[config["genome"]])
     params:
+        genome = config["genome"],
         args = config["bowtie2"]["args"]
     shell:
-        f"bowtie2-build {params.args} {input} results/bowtie2-build/{genome}"
+        '''
+        bowtie2-build {params.args} {input} results/bowtie2-build/{params.genome}
+        '''
 
 rule bowtie2:
     input:
