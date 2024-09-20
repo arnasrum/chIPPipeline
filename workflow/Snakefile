@@ -5,9 +5,6 @@ from sampleFileScripts import getAllSampleFilePaths
 
 configfile: "config/config.yml"
 
-include: "rules/fastqc.smk"
-include: "rules/align.smk"
-
 module downloadWorkflow:
     snakefile: "rules/download.smk"
     config: config["downloadWorkflow"]
