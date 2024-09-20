@@ -25,7 +25,7 @@ use rule * from alignmentWorkflow as align_*
 
 
 
-rule downloadAllSamples:
+rule downloadSamples:
     input:
         *getAllSampleFilePaths()
 
