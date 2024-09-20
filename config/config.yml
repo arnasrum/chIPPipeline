@@ -14,8 +14,11 @@ trimmingWorkflow:
   fastp:
     args: ""
 
-alignment:
+alignmentWorkflow:
   trimmer: "trimgalore"
+  genome: "mm39"
+  bowtie2:
+    args: ""
 
 workflow:
   trimmer: "cutadapt"

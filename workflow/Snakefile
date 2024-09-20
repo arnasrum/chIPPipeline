@@ -18,9 +18,14 @@ module trimWorkflow:
     snakefile: "rules/trim.smk"
     config: config["trimmingWorkflow"]
 
+module alignmentWorkflow:
+    snakefile: "rules/align.smk"
+    config: config["alignmentWorkflow"]
+
 
 use rule * from downloadWorkflow
 use rule * from trimWorkflow as trim_*
+use rule * from alignmentWorkflow as align_*
 
 
 

@@ -1,3 +1,5 @@
+#rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/{genome}/bigZips/{genome}.fa.gz resources/genomes/
+#wget https://hgdownload.soe.ucsc.edu/goldenPath/{genome}/bigZips/{genome}.fa.gz -o resources/genomes/{genome}.fa.gz
 import sys
 sys.path.append("workflow/scripts")
 import pandas as pd
@@ -22,3 +24,11 @@ for fileInfo in parseSampleFile():
             '''
             fasterq-dump -t temp -p -O {params.outdir} -o {params.fileName} {params.accession}
             '''
+
+rule downloadReferenceGenome:
+    output:
+        "resources/genomes/{genome}.fa.gz"
+    shell:
+        '''
+        rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/{genome}/bigZips/{genome}.fa.gz resources/genomes/
+        '''
