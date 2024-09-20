@@ -12,6 +12,8 @@ for fileInfo in parseSampleFile():
             outdir = config["fasterq-dump"]["downloadPath"],
             accession = fileInfo["accession"],
             fileName = fileInfo["fileName"]
+        benchmark:
+            f"benchmarks/fasterq-dump/{fileInfo["accession"]}.benchmark.txt"
         shell:
             '''
             fasterq-dump -t temp -p -O {params.outdir} -o {params.fileName} {params.args} {params.accession}
@@ -20,6 +22,8 @@ for fileInfo in parseSampleFile():
 rule downloadReferenceGenome:
     output:
         "resources/genomes/{genome}.fa.gz"
+    benchmark:
+        "benchmarks/rsync/{genome}.benchmark.txt"
     shell:
         '''
         rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.genome}/bigZips/{wildcards.genome}.fa.gz resources/genomes/
