@@ -29,10 +29,16 @@ def parseSampleFile():
                 fileData.append({"accession": accession, "fileName": fileName, "outputFiles": (f"{fileName}.fastq")})
     return fileData
 
-def getAllSampleFilePaths():
+def getAllSampleFilePaths(includeDirectories=True):
+    '''
+    Parses samples.csv and returns a list with file paths to the sequence files.
+    If includeDirectories is false, the function returns only the file names
+    '''
     if not os.path.isfile("config/samples.csv"):
         generateSampleFile()
-    outputDirectory = "resources/reads"
+    outputDirectory = "resources/reads/"
+    if not includeDirectories:
+        outputDirectory = ""
     filePaths = []
     with open("config/samples.csv", "r") as file:
         table = pd.read_csv(file)
@@ -40,27 +46,11 @@ def getAllSampleFilePaths():
             fileName = row["filename"]
             libraryLayout = row["libraryLayout"]
             if libraryLayout == "PAIRED":
-                filePaths.append(f"{outputDirectory}/{fileName}_1.fastq")
-                filePaths.append(f"{outputDirectory}/{fileName}_2.fastq")
+                filePaths.append(f"{outputDirectory}{fileName}_1.fastq")
+                filePaths.append(f"{outputDirectory}{fileName}_2.fastq")
             else:
-                filePaths.append(f"{outputDirectory}/{fileName}.fastq")
+                filePaths.append(f"{outputDirectory}{fileName}.fastq")
     return filePaths
-
-def getAllSampleFileNames():
-    if not os.path.isfile("config/samples.csv"):
-        generateSampleFile()
-    fileNames = []
-    with open("config/samples.csv", "r") as file:
-        table = pd.read_csv(file)
-        for _, row in table.iterrows():
-            fileName = row["filename"]
-            libraryLayout = row["libraryLayout"]
-            if libraryLayout == "PAIRED":
-                fileNames.append(f"{fileName}_1.fastq")
-                fileNames.append(f"{fileName}_2.fastq")
-            else:
-                fileNames.append(f"{fileName}.fastq")
-    return fileNames
 
 
 def generateSampleFile():
