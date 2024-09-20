@@ -17,16 +17,16 @@ rule buildBowtie2Index:
 
 rule bowtie2:
     input:
-        f"results/{trimmer}/{{id}}_1.fastq", 
-        f"results/{trimmer}/{{id}}_2.fastq",
-        expand("results/bowtie2-build/{genome}.{extension}", extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], genome=config["genome"])
+        expand("results/bowtie2-build/{genome}.{extension}", extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], genome=config["genome"]),
+        input1 = f"results/{trimmer}/{{id}}_1.fastq", 
+        input2 = f"results/{trimmer}/{{id}}_2.fastq"
     output:
         "results/bowtie2/{id}.bam"
     params:
-        args = config["bowtie2"]["args"]
+        args = config["bowtie2"]["args"],
+        genome = config["genome"]
     shell:
         '''
-        touch results/bowtie2/{wildcards.id}.bam
-        echo 'this should work' 
+        bowtie2 -x results/bowtie2-build/{params.genome} -1 {input.input1} -2 {input.input2}
         '''
 
