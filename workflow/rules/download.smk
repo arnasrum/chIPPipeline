@@ -1,5 +1,3 @@
-#rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/{genome}/bigZips/{genome}.fa.gz resources/genomes/
-#wget https://hgdownload.soe.ucsc.edu/goldenPath/{genome}/bigZips/{genome}.fa.gz -o resources/genomes/{genome}.fa.gz
 import sys
 sys.path.append("workflow/scripts")
 import pandas as pd
@@ -30,5 +28,5 @@ rule downloadReferenceGenome:
         "resources/genomes/{genome}.fa.gz"
     shell:
         '''
-        rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/{genome}/bigZips/{genome}.fa.gz resources/genomes/
+        rsync -a -P rsync://hgdownload.soe.ucsc.edu/goldenPath/{wildcards.genome}/bigZips/{wildcards.genome}.fa.gz resources/genomes/
         '''
