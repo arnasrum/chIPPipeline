@@ -6,17 +6,17 @@ rule buildBowtie2Index:
     input:
         f"resources/genomes/{genome}.fa.gz"
     output:
-        expand("results/bowtie2-build/index.{extension}", extension=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l"])
+        expand("results/bowtie2-build/{genome}.{extension}", extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], genome=[config["genome"]])
+    params:
+        args = config["bowtie2"]["args"]
     shell:
-        '''
-        bowtie2-build {input} results/bowtie2-build 
-        '''
+        f"bowtie2-build {params.args} {input} results/bowtie2-build/{genome}"
 
 rule bowtie2:
     input:
         f"results/{trimmer}/{{id}}_1.fastq", 
         f"results/{trimmer}/{{id}}_2.fastq",
-        expand("results/bowtie2-build/index.{extension}", extension=["1.bt2l", "2.bt2l", "3.bt2l", "4.bt2l"])
+        expand("results/bowtie2-build/{genome}.{extension}", extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], genome=config["genome"])
     output:
         "results/bowtie2/{id}.bam"
     params:
