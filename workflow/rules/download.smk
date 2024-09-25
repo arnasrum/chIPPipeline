@@ -11,19 +11,23 @@ from sampleFileScripts import fetchGEOInfo
 gsmMap = fetchGEOInfo()
 for srr in [run for value in gsmMap.values() for run in value["runs"]]:
     rule:
+        name:
+            f"download_{srr}"
         output:
-            f"resources/reads/{srr}_1.fastq",
-            f"resources/reads/{srr}_2.fastq"
+            temp(f"resources/reads/{srr}_1.fastq"),
+            temp(f"resources/reads/{srr}_2.fastq")
         params:
             srr = srr
         shell:
             '''
-            fasterq-dump -t temp -O resources/reads -p {params.srr}
+            fasterq-dump --temp temp -O resources/reads -p {params.srr}
             '''
 
 
 for gsm, values in gsmMap.items():
     rule:
+        name:
+            f"download_{gsm}"
         input:
             expand("resources/reads/{run}_{readNum}.fastq", run=values["runs"], readNum=[1, 2])
         output:
