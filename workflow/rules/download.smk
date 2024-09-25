@@ -4,8 +4,12 @@ import pandas as pd
 import numpy as np
 from sampleFileScripts import fetchGEOInfo 
 
+
+
+
+
 gsmMap = fetchGEOInfo()
-for srr in np.array([items["runs"] for items in gsmMap.values()]).flatten():
+for srr in [run for value in gsmMap.values() for run in value["runs"]]:
     rule:
         output:
             f"resources/reads/{srr}_1.fastq",
@@ -21,7 +25,7 @@ for srr in np.array([items["runs"] for items in gsmMap.values()]).flatten():
 for gsm, values in gsmMap.items():
     rule:
         input:
-            expand("resources/reads/{run}_{readNum}.fastq", run=["SRR2297324", "SRR2297325"], readNum=[1, 2])
+            expand("resources/reads/{run}_{readNum}.fastq", run=values["runs"], readNum=[1, 2])
         output:
             f"resources/reads/{values["cleanFileName"]}_1.fastq",
             f"resources/reads/{values["cleanFileName"]}_2.fastq"

@@ -4,11 +4,16 @@ import json
 import os
 
 def fetchGEOInfo():
+
+    if os.path.isfile("config/samples.json"):
+        with open("config/samples.json", "r") as file:
+            return json.load(file)
+
     sraDatabase = SRAweb()
     gsm_accessions = set()
     with open("config/input.csv", "r") as file:
         for index, row in pd.read_csv(file).iterrows():
-            for gsm in row.values[1:]:
+            for gsm in row.values[:4]:
                 gsm_accessions.add(gsm)
     gsmToSRR = {}
     for gsm in gsm_accessions:
@@ -33,8 +38,8 @@ def getAllSampleFilePaths(includeDirectories=True):
     with open("config/samples.json", "r") as file:
         data = json.load(file)
         for gsm, values in data.items():
-            filePaths.append(f"{directory}{data[gsm]["cleanFileName"]}")
-    print(filePaths)
+            filePaths.append(f"{directory}{data[gsm]["cleanFileName"]}_1.fastq")
+            filePaths.append(f"{directory}{data[gsm]["cleanFileName"]}_2.fastq")
     return filePaths
 if __name__ == "__main__":
     fetchGEOInfo()
