@@ -1,11 +1,13 @@
+
+
 rule fastqc:
 	input:
-		"reads/{id}.fastq",
+		f"{config["path_to_reads"]}/{{id}}.fastq",
 	output:
-		"output/fastqc/{id}_fastqc.html",
-		"output/fastqc/{id}_fastqc.zip",
+		"results/fastqc/{id}_fastqc.html",
+		"results/fastqc/{id}_fastqc.zip",
 	params:
-		outputPath = "output/fastqc"
+		outputPath = "results/fastqc"
 	shell:
 		"""
 		fastqc -o {params.outputPath} {input} 
