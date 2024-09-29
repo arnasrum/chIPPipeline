@@ -15,11 +15,14 @@ trimmingWorkflow:
     args: ""
 
 alignmentWorkflow:
-  trimmer: "trimgalore"
-  genome: "mm39"
+  trimmer: trimmer 
+  genome: "mm10"
   bowtie2:
     args: ""
 
-workflow:
-  trimmer: "cutadapt"
-  aligner: "bowtie2"
+path_to_reads: "results/reads"
+trimmer: "trim_galore"
+aligner: "bowtie2"
+genome: "mm10"
+bowtie2:
+  args: ""

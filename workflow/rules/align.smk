@@ -1,12 +1,13 @@
-genome = config["genome"]
 trimmer = config["trimmer"]
 
 
 rule buildBowtie2Index:
     input:
-        f"resources/genomes/{genome}.fa.gz"
+        f"resources/genomes/{config["genome"]}.fa.gz"
     output:
-        expand("results/bowtie2-build/{genome}.{extension}", extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], genome=[config["genome"]])
+        expand("results/bowtie2-build/{genome}.{extension}", 
+                extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], 
+                genome=[config["genome"]])
     params:
         genome = config["genome"],
         args = config["bowtie2"]["args"]
@@ -29,4 +30,3 @@ rule bowtie2:
         '''
         bowtie2 -x results/bowtie2-build/{params.genome} -1 {input.input1} -2 {input.input2}
         '''
-

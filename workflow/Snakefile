@@ -1,14 +1,18 @@
 import sys
 sys.path.append("workflow/scripts")
+import os
 from sampleFileScripts import getAllSampleFilePaths
 
-
 configfile: "config/config.yml"
+
+
+module QA:
+    snakefile: "rules/fastqc.smk"
+    config: config
 
 module downloadWorkflow:
     snakefile: "rules/download.smk"
     config: config["downloadWorkflow"]
-
 
 module trimWorkflow:
     snakefile: "rules/trim.smk"
@@ -16,10 +20,11 @@ module trimWorkflow:
 
 module alignmentWorkflow:
     snakefile: "rules/align.smk"
-    config: config["alignmentWorkflow"]
+    config: config
 
 
-use rule * from downloadWorkflow
+use rule * from QA as qa_*
+use rule * from downloadWorkflow as download_*
 use rule * from trimWorkflow as trim_*
 use rule * from alignmentWorkflow as align_*
 
@@ -29,12 +34,12 @@ rule downloadSamples:
     input:
         *getAllSampleFilePaths()
 
-trimmer = config["workflow"]["trimmer"]
+trimmer = config["trimmer"]
 rule trim:
     input:
         list(map(lambda fileName: f"results/{trimmer}/{fileName}", getAllSampleFilePaths(includeDirectories=False)))
 
-aligner = config["workflow"]["aligner"]
+aligner = config["aligner"]
 rule align:
     input:
         list(map(lambda fileName: f"results/{aligner}/{fileName[:-8]}.bam", getAllSampleFilePaths(includeDirectories=False)[::2]))
