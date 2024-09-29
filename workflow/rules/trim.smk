@@ -8,7 +8,7 @@ rule trimgalore_pe:
         out1 = f"{OUTPUTDIRS["trimgalore"]}/{{id}}_1.fastq",
         out2 = f"{OUTPUTDIRS["trimgalore"]}/{{id}}_2.fastq"
     conda:
-        "workflow/envs/trimgalore.yml"
+        "../envs/trimgalore.yml"
     params:
         name = f"{{id}}",
         args = config["trimgalore"]["args"],
@@ -29,7 +29,7 @@ rule cutadapt_pe:
         out1 = f"{OUTPUTDIRS["cutadapt"]}/{{id}}_1.fastq",
         out2 = f"{OUTPUTDIRS["cutadapt"]}/{{id}}_2.fastq"
     conda:
-        "workflow/envs/cutadapt.yml"
+        "../envs/cutadapt.yml"
     params:
         args = config["cutadapt"]["args"]
     shell:
@@ -45,7 +45,7 @@ rule fastp_pe:
         out1 = f"{OUTPUTDIRS["fastp"]}/{{id}}_1.fastq",
         out2 = f"{OUTPUTDIRS["fastp"]}/{{id}}_2.fastq"
     conda:
-        "workflow/envs/fastp.yml"
+        "../envs/fastp.yml"
     params:
         args = config["fastp"]["args"]
     shell:
