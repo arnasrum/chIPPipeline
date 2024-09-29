@@ -44,7 +44,7 @@ for gsm, values in gsmMap.items():
             cat {params.read2Files} > {params.outdir}/{params.outputName}_2.fastq
             """
 
-rule downloadReferenceGenome:
+rule referenceGenome:
     output:
         "resources/genomes/{genome}.fa.gz"
     benchmark:
