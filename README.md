@@ -21,3 +21,25 @@ to get at list of all available rules.
 The main rules do not have any prefixes, like **align** and **trim**, these can be ran by calling 
 
 `snakemake -np RULENAME `
+
+# Supported Tools
+
+## Downloading
+
+- fasterq-dump (from sra-toolkit)
+
+## Quality Control
+
+- FastQC
+
+## Adapter Trim
+
+- Trimgalore
+- Cutadapt
+- Fastp
+
+## Alignment/Mapping
+
+- Bowtie2
+
+## Peak Calling
