@@ -3,7 +3,7 @@ from pysradb import SRAweb
 import json
 import os
 
-def fetchGEOInfo():
+def fetchGEOInfo(sampleSheet="config/sampleSheet.csv"):
 
     if os.path.isfile("config/samples.json"):
         with open("config/samples.json", "r") as file:
@@ -11,9 +11,9 @@ def fetchGEOInfo():
 
     sraDatabase = SRAweb()
     gsm_accessions = set()
-    with open("config/input.csv", "r") as file:
+    with open(sampleSheet, "r") as file:
         for index, row in pd.read_csv(file).iterrows():
-            for gsm in row.values[:4]:
+            for gsm in row.values[2:]:
                 gsm_accessions.add(gsm)
     gsmToSRR = {}
     for gsm in gsm_accessions:
@@ -41,5 +41,6 @@ def getAllSampleFilePaths(includeDirectories=True):
             filePaths.append(f"{directory}{data[gsm]["cleanFileName"]}_1.fastq")
             filePaths.append(f"{directory}{data[gsm]["cleanFileName"]}_2.fastq")
     return filePaths
+
 if __name__ == "__main__":
     fetchGEOInfo()
