@@ -14,15 +14,18 @@ trimmingWorkflow:
   fastp:
     args: ""
 
+bowtie2:
+  args: ""
+
 alignmentWorkflow:
   trimmer: trimmer 
   genome: "mm10"
   bowtie2:
     args: ""
 
+sample: ""
 path_to_reads: "results/reads"
 trimmer: "trim_galore"
 aligner: "bowtie2"
-genome: "mm10"
-bowtie2:
-  args: ""
+genome: "mm39"
+samtools: "-f 4"
