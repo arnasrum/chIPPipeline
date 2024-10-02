@@ -22,11 +22,16 @@ module alignmentWorkflow:
     snakefile: "rules/align.smk"
     config: config
 
+module peakCallingWorkflow:
+    snakefile: "rules/peakCalling.smk"
+    config: config
+
 
 use rule * from QA as qa_*
 use rule * from downloadWorkflow as download_*
 use rule * from trimWorkflow as trim_*
 use rule * from alignmentWorkflow as align_*
+use rule * from peakCallingWorkflow as peak_calling_*
 
 
 
@@ -42,5 +47,5 @@ rule trim:
 aligner = config["aligner"]
 rule align:
     input:
-        list(map(lambda fileName: f"results/{aligner}/{fileName[:-8]}.bam", getAllSampleFilePaths(includeDirectories=False)[::2]))
+        list(map(lambda fileName: f"results/{aligner}/{fileName[:-8]}.sam", getAllSampleFilePaths(includeDirectories=False)[::2]))
 
