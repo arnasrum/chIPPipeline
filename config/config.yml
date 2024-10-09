@@ -18,14 +18,22 @@ bowtie2:
   args: ""
 
 alignmentWorkflow:
-  trimmer: trimmer 
-  genome: "mm10"
   bowtie2:
     args: ""
 
-sample: ""
-path_to_reads: "results/reads"
 trimmer: "trim_galore"
+fastp_options: ""
+trim_galore_options: ""
+
+
 aligner: "bowtie2"
+bowtie2_options: ""
+
 genome: "mm39"
+
+
+
 samtools: "-f 4"
+
+
+module: "--trim trim_galore"
