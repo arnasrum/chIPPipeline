@@ -31,9 +31,8 @@ bowtie2_options: ""
 
 genome: "mm39"
 
-
+path_to_reads: ""
 
 samtools: "-f 4"
 
-
-module: "--trim trim_galore"
+modules: ""
