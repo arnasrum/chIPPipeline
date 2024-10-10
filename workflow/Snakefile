@@ -2,6 +2,7 @@ import sys
 sys.path.append("workflow/scripts")
 import os
 from sampleFileScripts import getAllSampleFilePaths
+from setModuleOptions import setModuleOptions
 
 configfile: "config/config.yml"
 
@@ -33,7 +34,7 @@ use rule * from trimWorkflow as trim_*
 use rule * from alignmentWorkflow as align_*
 use rule * from peakCallingWorkflow as peak_calling_*
 
-
+setModuleOptions(config)
 
 rule downloadSamples:
     input:
@@ -49,3 +50,9 @@ rule align:
     input:
         list(map(lambda fileName: f"results/{aligner}/{fileName[:-8]}.sam", getAllSampleFilePaths(includeDirectories=False)[::2]))
 
+
+rule test:
+    output:
+        "test.txt"
+    shell:
+        "touch test.txt"
