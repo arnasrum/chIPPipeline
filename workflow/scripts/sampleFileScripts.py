@@ -54,25 +54,24 @@ def getSraAccessions(geoAccessions: list[str]) -> dict[str:str]:
     '''
     enterezUrl: str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gds&term="
     enterezUrl += "+OR+".join(geoAccessions)
-
     ### Handle 5** and 4** status codes
     response: Response = get(enterezUrl, timeout=5)
     xmlResponse: ElementTree.Element = ElementTree.fromstring(response.content)
-    #idList: list[str] = []
     idList = list(filter(lambda item: int(item) > 299999999, [id.text for id in xmlResponse[3]]))
     enterezUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gds&id=" + ",".join(idList)
     response = get(enterezUrl, timeout=5)
     responseText: str = response.content.decode().lstrip("\n").rstrip("\n")
     gsmToSraMap: dict[str:str] = {} 
     prevEnd: int = 0
-    for match in re.finditer(r"\n\n", responseText):
-        subResponse: str = responseText[prevEnd: match.span()[1]]
+    responseText = responseText.replace("\n\n", "\t;:.,")
+    responseText = responseText.replace("\n", "")
+    for match in responseText.split("\t;:.,"):
+        subResponse: str = match 
         accessionPosition: re.Match = re.search(r"Accession:\sGSM[0-9]*", subResponse)
-        sraAccessionPosition: re.Match = re.search(r"(?i)SRA Run Selector:\shttps?:\/\/www.[a-z.\/]*[a-z\/\?=0-9]*", subResponse)
-        accession: str = subResponse[accessionPosition.span()[0]: accessionPosition.span()[1]].split(": ")[1]
-        sraAccession: str = subResponse[sraAccessionPosition.span()[0]: sraAccessionPosition.span()[1]].split("acc=")[1]
+        sraAccessionPosition: re.Match = re.search(r"SRX[0-9]*", subResponse)
+        accession: str = subResponse[accessionPosition.span()[0]: accessionPosition.span()[1]]
+        sraAccession: str = subResponse[sraAccessionPosition.span()[0]: sraAccessionPosition.span()[1]]
         gsmToSraMap[accession] = sraAccession
-        prevEnd = match.span()[1]
     return gsmToSraMap
 
 def getMetaData(sraAccessions: list[str]) -> dict[str: dict]: 
