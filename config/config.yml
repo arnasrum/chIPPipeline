@@ -28,6 +28,8 @@ trim_galore_options: ""
 
 aligner: "bowtie2"
 bowtie2_options: ""
+libraryStrategy: "paired"
+providedFileExtension: "fastq"
 
 genome: "mm39"
 
