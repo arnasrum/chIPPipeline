@@ -5,6 +5,8 @@ import json
 import os
 import re
 
+timeout = 30
+
 def makeSampleInfo(sampleSheet:str="config/samples.csv") -> dict:
 
     #if os.path.isfile("config/samples.json"):
@@ -21,16 +23,13 @@ def makeSampleInfo(sampleSheet:str="config/samples.csv") -> dict:
     sampleInfo["public"] = {}; sampleInfo["private"] = {}
     gsmAccessions = set()
 
-    for gsm in inputSamples:
-        if pattern.match(gsm):
-            gsmAccessions.add(gsm)
-        else:
-            fileName = gsm.split("/")[-1]
-            sampleInfo["private"][fileName] = {}
-            sampleInfo["private"][fileName]["path"] = gsm
-            sampleInfo["private"][fileName]["cleanFileName"] = fileName.split(".")[0]
-    for key,value in getMetaData(getSraAccessions(gsmAccessions).values()).items():
-        sampleInfo["public"][key] = value 
+    gsmAccessions = set(filter(lambda item: pattern.match(item), inputSamples))
+    for gsm in filter(lambda item: not pattern.match(item), inputSamples):
+        fileName = gsm.split("/")[-1]
+        sampleInfo["private"][fileName] = {}
+        sampleInfo["private"][fileName]["path"] = gsm
+        sampleInfo["private"][fileName]["cleanFileName"] = fileName.split(".")[0]
+    sampleInfo["public"] = {key:value for key, value in getMetaData(getSraAccessions(gsmAccessions).values()).items()}
 
     with open(f"config/samples.json", "w") as outfile:
         outfile.write(json.dumps(sampleInfo, indent=4))
@@ -54,17 +53,18 @@ def getSraAccessions(geoAccessions: list[str]) -> dict[str:str]:
     '''
     enterezUrl: str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gds&term="
     enterezUrl += "+OR+".join(geoAccessions)
+    print(enterezUrl)
     ### Handle 5** and 4** status codes
-    response: Response = get(enterezUrl, timeout=5)
+    response: Response = get(enterezUrl, timeout=timeout)
     xmlResponse: ElementTree.Element = ElementTree.fromstring(response.content)
     idList = list(filter(lambda item: int(item) > 299999999, [id.text for id in xmlResponse[3]]))
     enterezUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gds&id=" + ",".join(idList)
-    response = get(enterezUrl, timeout=5)
+    print(enterezUrl)
+    ### Handle 5** and 4** status codes
+    response = get(enterezUrl, timeout=timeout)
     responseText: str = response.content.decode().lstrip("\n").rstrip("\n")
     gsmToSraMap: dict[str:str] = {} 
-    prevEnd: int = 0
-    responseText = responseText.replace("\n\n", "\t;:.,")
-    responseText = responseText.replace("\n", "")
+    responseText = responseText.replace("\n\n", "\t;:.,").replace("\n", "")
     for match in responseText.split("\t;:.,"):
         subResponse: str = match 
         accessionPosition: re.Match = re.search(r"Accession:\sGSM[0-9]*", subResponse)
@@ -80,7 +80,9 @@ def getMetaData(sraAccessions: list[str]) -> dict[str: dict]:
     '''
     runAccessions: list[str] = []
     enterezUrl: str = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id={",".join(sraAccessions)}"
-    response: Response = get(enterezUrl, timeout=5)
+    print(enterezUrl)
+    ### Handle 5** and 4** status codes
+    response: Response = get(enterezUrl, timeout=timeout)
     root: ElementTree.Element = ElementTree.fromstring(response.content)
     metaData: dict[str: dict] = {}
     for node in root:
