@@ -12,10 +12,7 @@ def setModuleOptions(config: dict) -> None:
     flags = pattern.findall(config["modules"])
     for i in range(len(flags)):
         argumentStart = re.search(flags[i], config["modules"]).end()
-        if i == len(flags) - 1:
-            argumentEnd = len(config["modules"])
-        else:
-            argumentEnd = re.search(flags[i + 1], config["modules"]).start()
+        argumentEnd = len(config["modules"]) if i == len(flags) - 1 else re.search(flags[i + 1], config["modules"]).start()
         argument = config["modules"][argumentStart: argumentEnd]
         match flags[i].rstrip():
             case "-t":
