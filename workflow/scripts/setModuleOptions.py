@@ -6,7 +6,7 @@ def setModuleOptions(config: dict) -> None:
         Optimally specified when running snakemake through CLI 
         with --config modules="--flag value -f value"
     '''
-    # --flag- is not caught as a flag
+    # --flag- is not caught as a flag in regex
     # multi character flag with single dash is read as value
     pattern = re.compile(r"(?i)\B--[a-z]*\s|\B-[a-z]\s")
     flags = pattern.findall(config["modules"])

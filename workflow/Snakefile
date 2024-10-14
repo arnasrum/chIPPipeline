@@ -1,7 +1,7 @@
 import sys
 sys.path.append("workflow/scripts")
 import os
-from sampleFileScripts import getAllSampleFilePaths
+from sampleFileScripts import getAllSampleFilePaths, getFileNames
 from setModuleOptions import setModuleOptions
 
 configfile: "config/config.yml"
@@ -13,7 +13,7 @@ module QA:
 
 module downloadWorkflow:
     snakefile: "rules/download.smk"
-    config: config["downloadWorkflow"]
+    config: config
 
 module trimWorkflow:
     snakefile: "rules/trim.smk"
