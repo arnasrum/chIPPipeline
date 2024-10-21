@@ -17,9 +17,11 @@ trimmingWorkflow:
 bowtie2:
   args: ""
 
-alignmentWorkflow:
-  bowtie2:
-    args: ""
+bwa:
+  args: ""
+bwa-index:
+  args: ""
+
 
 trimmer: "trim_galore"
 fastp_options: ""

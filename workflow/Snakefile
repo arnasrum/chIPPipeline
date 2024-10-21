@@ -42,13 +42,13 @@ rule downloadSamples:
 trimmer = config["trimmer"]
 rule trim:
     input:
-        list(map(lambda fileName: f"results/{trimmer}/{fileName}", getAllSampleFilePaths(includeDirectories=False))),
-        list(map(lambda fileName: f"results/fastqc/{trimmer}/{fileName[:-8]}_1_fastqc.html", getAllSampleFilePaths(includeDirectories=False)))
+        [*map(lambda fileName: f"results/{trimmer}/{fileName}", getAllSampleFilePaths(includeDirectories=False))],
+        [*map(lambda fileName: f"results/fastqc/{trimmer}/{fileName[:-8]}_1_fastqc.html", getAllSampleFilePaths(includeDirectories=False))]
 
 aligner = config["aligner"]
 rule align:
     input:
-        list(map(lambda fileName: f"results/{aligner}/{fileName[:-8]}.sam", getAllSampleFilePaths(includeDirectories=False)[::2]))
+        [*map(lambda fileName: f"results/{aligner}/{fileName[:-8]}.sam", getAllSampleFilePaths(includeDirectories=False)[::2])]
 
 
 rule test:

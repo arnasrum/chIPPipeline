@@ -7,8 +7,9 @@ rule buildBowtie2Index:
         f"resources/genomes/{config["genome"]}.fa.gz"
     output:
         expand("results/bowtie2-build/{genome}.{extension}", 
-                extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], 
-                genome=[config["genome"]])
+            extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], 
+            genome=[config["genome"]]
+        )
     params:
         genome = config["genome"],
         args = config["bowtie2"]["args"]
@@ -17,9 +18,12 @@ rule buildBowtie2Index:
         bowtie2-build {params.args} {input} results/bowtie2-build/{params.genome}
         '''
 
-rule bowtie2:
+rule bowtie2_pe:
     input:
-        expand("results/bowtie2-build/{genome}.{extension}", extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], genome=config["genome"]),
+        expand("results/bowtie2-build/{genome}.{extension}", 
+            extension=["1.bt2", "2.bt2", "3.bt2", "4.bt2"], 
+            genome=config["genome"]
+        ),
         input1 = f"results/{trimmer}/{{id}}_1.fastq", 
         input2 = f"results/{trimmer}/{{id}}_2.fastq"
     output:
@@ -34,6 +38,42 @@ rule bowtie2:
         '''
         bowtie2 -x results/bowtie2-build/{params.genome} -1 {input.input1} -2 {input.input2} -S {output}
         '''
+
+
+rule buildBWAIndex:
+    input:
+        f"resources/genomes/{config["genome"]}.fa.gz"
+    output: 
+        expand("results/bwa-index/{genome}.{ext}", 
+            genome=config["genome"], 
+            ext=["amb", "ann", "pac", "sa", "bwt"]
+        ) 
+    params:
+        genome = config["genome"],
+        args = config["bwa-index"]["args"]
+    shell:
+        """
+        mkdir -p results/bwa-index
+        bwa index {params.args} {input} -p results/bwa-index/{params.genome}
+        """
+
+rule bwa_pe:
+    input:
+        read1 = expand("results/{trimmer}/{id}_1.fastq", trimmer=config["trimmer"], allow_missing=True),
+        read2 = expand("results/{trimmer}/{id}_2.fastq", trimmer=config["trimmer"], allow_missing=True),
+        genomeIndex = expand("results/bwa-index/{genome}.{ext}", 
+            genome=config["genome"], 
+            ext=["amb", "ann", "pac", "sa", "bwt"]
+        ) 
+    output:
+        "results/bwa/{id}.sam"
+    params:
+        args = config["bwa"]["args"]
+    shell:
+        """
+        bwa mem {params.args} results/bwa-index/mm39 {input.read1} {input.read2} > {output}
+        """
+
 
 rule filterReads:
     input:

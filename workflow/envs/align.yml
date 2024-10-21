@@ -1,0 +1,10 @@
+name align:
+channels:
+  - bioconda
+  - conda-forge
+dependencies:
+  - bwa==0.7.18-r1243-dirty
+  - bowtie2==2.5.4
+  - star==2.7.11b
+  - fastp==0.23.4
+  - trimmomatic==0.39
