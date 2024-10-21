@@ -43,17 +43,17 @@ for gsm, values in fileInfo["public"].items():
 
 
 reads = ["1", "2"] if config["libraryStrategy"] == "paired" else ["1"]
-for key, value in fileInfo["private"].items():
+for key, value in fileInfo["provided"].items():
     rule:
         name: f"link_{value["cleanFileName"]}"
         input:
-            expand("{path}_{num}.{ext}", path=value["path"], num=reads, ext=config["providedFileExtension"]) 
+            expand("{path}_{num}.{ext}", path=value["path"], num=reads, ext=value["fileExtention"]) 
         output:
             expand("resources/reads/{fileName}_{num}.fastq", fileName=value["cleanFileName"], num=reads) 
         params:
             libraryStrategy = config["libraryStrategy"],
             pathToOriginal = value["path"],
-            fileExt = config["providedFileExtension"],
+            fileExt = value["fileExtention"],
             cleanFileName = value["cleanFileName"]
         shell:
             '''

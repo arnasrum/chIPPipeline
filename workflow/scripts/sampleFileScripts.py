@@ -1,13 +1,14 @@
 from requests import get, Response
 from xml.etree import ElementTree
+from typing import Any
 import pandas as pd
 import json
 import os
 import re
 
-timeout = 30
+REQUEST_TIMEOUT = 30
 
-def makeSampleInfo(sampleSheet:str="config/samples.csv") -> dict:
+def makeSampleInfo(sampleSheet:str="config/samples.csv") -> dict[str:dict]:
 
     #if os.path.isfile("config/samples.json"):
         #with open("config/samples.json", "r") as file:
@@ -20,22 +21,31 @@ def makeSampleInfo(sampleSheet:str="config/samples.csv") -> dict:
             for gsm in row.values[2:]:
                 inputSamples.add(gsm)
     sampleInfo = {}
-    sampleInfo["public"] = {}; sampleInfo["private"] = {}
+    sampleInfo["public"] = {}; sampleInfo["provided"] = {}
+    providedInfo: dict[str:Any] = sampleInfo["provided"]
     gsmAccessions = set()
 
     gsmAccessions = set(filter(lambda item: pattern.match(item), inputSamples))
     for gsm in filter(lambda item: not pattern.match(item), inputSamples):
         fileName = gsm.split("/")[-1]
-        sampleInfo["private"][fileName] = {}
-        sampleInfo["private"][fileName]["path"] = gsm
-        sampleInfo["private"][fileName]["cleanFileName"] = fileName.split(".")[0]
+        providedInfo[fileName] = {}
+        providedInfo[fileName]["path"] = gsm
+        seperatedFileName = fileName.split(".")
+        fileExtention = seperatedFileName[-1]
+        if len(seperatedFileName) > 2 and seperatedFileName[-2] == "fa":
+            fileExtention = f"{seperatedFileName[-2]}.{seperatedFileName[-1]}"
+        providedInfo[fileName]["fileExtension"] = fileExtention 
+        providedInfo[fileName]["cleanFileName"] = fileName.split("." + fileExtention)[0]
     sampleInfo["public"] = {key:value for key, value in getMetaData(getSraAccessions(gsmAccessions).values()).items()}
 
     with open(f"config/samples.json", "w") as outfile:
         outfile.write(json.dumps(sampleInfo, indent=4))
     return sampleInfo
 
-def getAllSampleFilePaths(includeDirectories=True) -> list:
+def getAllSampleFilePaths(includeDirectories=True) -> list[str]:
+    """
+        Not in use anymore 
+    """
     directory = "resources/reads/" if includeDirectories else ""
     filePaths = []
     with open("config/samples.json", "r") as file:
@@ -55,13 +65,13 @@ def getSraAccessions(geoAccessions: list[str]) -> dict[str:str]:
     enterezUrl += "+OR+".join(geoAccessions)
     print(enterezUrl)
     ### Handle 5** and 4** status codes
-    response: Response = get(enterezUrl, timeout=timeout)
+    response: Response = get(enterezUrl, timeout=REQUEST_TIMEOUT)
     xmlResponse: ElementTree.Element = ElementTree.fromstring(response.content)
     idList = list(filter(lambda item: int(item) > 299999999, [id.text for id in xmlResponse[3]]))
     enterezUrl = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=gds&id=" + ",".join(idList)
     print(enterezUrl)
     ### Handle 5** and 4** status codes
-    response = get(enterezUrl, timeout=timeout)
+    response = get(enterezUrl, timeout=REQUEST_TIMEOUT)
     responseText: str = response.content.decode().lstrip("\n").rstrip("\n")
     gsmToSraMap: dict[str:str] = {} 
     responseText = responseText.replace("\n\n", "\t;:.,").replace("\n", "")
@@ -82,7 +92,7 @@ def getMetaData(sraAccessions: list[str]) -> dict[str: dict]:
     enterezUrl: str = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id={",".join(sraAccessions)}"
     print(enterezUrl)
     ### Handle 5** and 4** status codes
-    response: Response = get(enterezUrl, timeout=timeout)
+    response: Response = get(enterezUrl, timeout=REQUEST_TIMEOUT)
     root: ElementTree.Element = ElementTree.fromstring(response.content)
     metaData: dict[str: dict] = {}
     for node in root:
@@ -110,9 +120,9 @@ def getFileNames(includeProvided: bool = True, includePubliclyAvailiable: bool =
         publicFiles = []
         providedFiles = []
         if includePubliclyAvailiable:
-            publicFiles = list(map(lambda item: item["cleanFileName"], fileInfo["public"].values()))
+            publicFiles = [*map(lambda item: item["cleanFileName"], fileInfo["public"].values())]
         if includeProvided:
-            providedFiles = list(map(lambda item: item["cleanFileName"], fileInfo["private"].values()))
+            providedFiles = [*map(lambda item: item["cleanFileName"], fileInfo["provided"].values())]
     return publicFiles + providedFiles
 
 
