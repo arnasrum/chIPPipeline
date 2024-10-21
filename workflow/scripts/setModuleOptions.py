@@ -20,9 +20,9 @@ def setModuleOptions(config: dict) -> None:
             case "--trim":
                 __setConfigOption(config, "trimmer", argument)
             case "-a":
-                __setConfigOption(config, "alginer", argument)
+                __setConfigOption(config, "aligner", argument)
             case "--align":
-                __setConfigOption(config, "alginer", argument)
+                __setConfigOption(config, "aligner", argument)
             case "-g":
                 __setConfigOption(config, "genome", argument)
             case "--genome":
