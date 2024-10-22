@@ -75,6 +75,26 @@ rule bwa_pe:
         """
 
 
+rule buildStarIndex:
+    input:
+        f"resources/genomes/{config["genome"]}.fa"
+    output:
+        expand("chr{name}.txt", name=["Length", "Name", "NameLength", "Start"]),
+        "Genome",
+        "genomeParameters.txt",
+        "Log.out",
+        "SA"
+    params:
+        pathToGenome = f"resources/genomes/{config["genome"]}.fa"
+    threads:
+        8
+    shell:
+        """
+        mkdir -p results/starIndex
+        STAR --runThreadN {threads} --runMode genomeGenerate --genomeDir results/starIndex --genomeFastaFiles {params.pathToGenome} 
+        """ 
+
+
 rule filterReads:
     input:
         f"results/{config["aligner"]}/{{id}}.sam"
