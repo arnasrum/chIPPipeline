@@ -61,6 +61,8 @@ def getSraAccessions(geoAccessions: list[str]) -> dict[str:str]:
     '''
         Given a list of GEO accessions retrieve their related SRA accessions 
     '''
+    if len(geoAccessions) == 0:
+        return dict() 
     enterezUrl: str = "https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=gds&term="
     enterezUrl += "+OR+".join(geoAccessions)
     print(enterezUrl)
@@ -88,6 +90,8 @@ def getMetaData(sraAccessions: list[str]) -> dict[str: dict]:
     '''
         Fetch metadata for SRA samples 
     '''
+    if len(sraAccessions) == 0:
+        return dict()
     runAccessions: list[str] = []
     enterezUrl: str = f"https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=sra&id={",".join(sraAccessions)}"
     print(enterezUrl)
