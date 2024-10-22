@@ -47,13 +47,13 @@ for key, value in fileInfo["provided"].items():
     rule:
         name: f"link_{value["cleanFileName"]}"
         input:
-            expand("{path}_{num}.{ext}", path=value["path"], num=reads, ext=value["fileExtention"]) 
+            expand("{path}_{num}.{ext}", path=value["path"], num=reads, ext=value["fileExtension"]) 
         output:
             expand("resources/reads/{fileName}_{num}.fastq", fileName=value["cleanFileName"], num=reads) 
         params:
             libraryStrategy = config["libraryStrategy"],
             pathToOriginal = value["path"],
-            fileExt = value["fileExtention"],
+            fileExt = value["fileExtension"],
             cleanFileName = value["cleanFileName"]
         shell:
             '''
