@@ -2,6 +2,7 @@ from requests import get, Response
 from xml.etree import ElementTree
 from typing import Any
 import pandas as pd
+import pathlib
 import json
 import os
 import re
@@ -26,16 +27,17 @@ def makeSampleInfo(sampleSheet:str="config/samples.csv") -> dict[str:dict]:
     gsmAccessions = set()
 
     gsmAccessions = set(filter(lambda item: pattern.match(item), inputSamples))
+    # Handle provided files
+    # gsm should be renamed
     for gsm in filter(lambda item: not pattern.match(item), inputSamples):
-        fileName = gsm.split("/")[-1]
+        path = pathlib.Path(gsm)
+        fileExtention = "".join(path.suffixes)
+        fileName = path.name.split(fileExtention)[0]
         providedInfo[fileName] = {}
-        providedInfo[fileName]["path"] = gsm
-        seperatedFileName = fileName.split(".")
-        fileExtention = seperatedFileName[-1]
-        if len(seperatedFileName) > 2 and seperatedFileName[-2] == "fa":
-            fileExtention = f"{seperatedFileName[-2]}.{seperatedFileName[-1]}"
+        providedInfo[fileName]["cleanFileName"] = fileName
         providedInfo[fileName]["fileExtension"] = fileExtention 
-        providedInfo[fileName]["cleanFileName"] = fileName.split("." + fileExtention)[0]
+        providedInfo[fileName]["path"] = gsm.split(fileName + fileExtention)[0]
+    # Handle publicly available files
     sampleInfo["public"] = {key:value for key, value in getMetaData(getSraAccessions(gsmAccessions).values()).items()}
 
     with open(f"config/samples.json", "w") as outfile:
@@ -43,17 +45,16 @@ def makeSampleInfo(sampleSheet:str="config/samples.csv") -> dict[str:dict]:
     return sampleInfo
 
 def getAllSampleFilePaths(includeDirectories=True) -> list[str]:
-    """
-        Not in use anymore 
-    """
     directory = "resources/reads/" if includeDirectories else ""
     filePaths = []
     with open("config/samples.json", "r") as file:
-        data = json.load(file)
+        data: dict[str:dict] = json.load(file)
         for type in data:
-            for gsm, values in data[type].items():
-                filePaths.append(f"{directory}{data[type][gsm]["cleanFileName"]}_1.fastq")
-                filePaths.append(f"{directory}{data[type][gsm]["cleanFileName"]}_2.fastq")
+                for fileInfo in data[type].values():
+                    path = f"{directory}{fileInfo["cleanFileName"]}"
+                    filePaths.append(f"{path}_1.fastq")
+                    filePaths.append(f"{path}_2.fastq")
+
     return filePaths
 
 
@@ -135,10 +136,7 @@ def __makeCleanFileName(title: str) -> str:
         title = title.replace(old, new)
     return title
 
-
-
 if __name__ == "__main__":
+    makeSampleInfo()
     #print(getAllFileNames())
-    #makeSampleInfo()
-    print(getFileNames(includeProvided=True, includePubliclyAvailiable=True))
-    #getGEOMetadata(["GSM1871972", "GSM1871973", "GSM1871976", "GSM1871977"])
+    #print(getFileNames(includeProvided=True, includePubliclyAvailiable=True))

@@ -8,6 +8,9 @@ configfile: "config/config.yml"
 
 setModuleOptions(config)
 
+module utils:
+    snakefile: "rules/utils.smk"
+    config: config
 module QA:
     snakefile: "rules/fastqc.smk"
     config: config
@@ -29,6 +32,7 @@ module peakCallingWorkflow:
     config: config
 
 
+use rule * from utils
 use rule * from QA as qa_*
 use rule * from downloadWorkflow as download_*
 use rule * from trimWorkflow as trim_*
