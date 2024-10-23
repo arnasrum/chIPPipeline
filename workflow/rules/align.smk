@@ -59,8 +59,8 @@ rule buildBWAIndex:
 
 rule bwa_pe:
     input:
-        read1 = expand("results/{trimmer}/{id}_1.fastq", trimmer=config["trimmer"], allow_missing=True),
-        read2 = expand("results/{trimmer}/{id}_2.fastq", trimmer=config["trimmer"], allow_missing=True),
+        read1 = f"results/{config["trimmer"]}/{{id}}_1.fastq",
+        read2 = f"results/{config["trimmer"]}/{{id}}_2.fastq",
         genomeIndex = expand("results/bwa-index/{genome}.{ext}", 
             genome=config["genome"], 
             ext=["amb", "ann", "pac", "sa", "bwt"]
@@ -79,11 +79,7 @@ rule buildStarIndex:
     input:
         f"resources/genomes/{config["genome"]}.fa"
     output:
-        expand("chr{name}.txt", name=["Length", "Name", "NameLength", "Start"]),
-        "Genome",
-        "genomeParameters.txt",
-        "Log.out",
-        "SA"
+        expand("results/star-index/SA{index}", index=["", "index"])
     params:
         pathToGenome = f"resources/genomes/{config["genome"]}.fa"
     threads:
@@ -91,9 +87,23 @@ rule buildStarIndex:
     shell:
         """
         mkdir -p results/starIndex
-        STAR --runThreadN {threads} --runMode genomeGenerate --genomeDir results/starIndex --genomeFastaFiles {params.pathToGenome} 
+        STAR --runThreadN {threads} --runMode genomeGenerate --genomeDir results/star-index --genomeFastaFiles {params.pathToGenome} 
         """ 
 
+rule STAR_pe:
+    input:
+        expand("results/star-index/SA{index}", index=["", "index"]),
+        read1 = f"results/{config["trimmer"]}/{{sample}}_1.fastq",
+        read2 = f"results/{config["trimmer"]}/{{sample}}_2.fastq"
+    output:
+        "results/STAR/{sample}.sam"
+    threads:
+        8
+    shell:
+        """
+        STAR --runThreadN {threads} --genomeDir results/star-index --outFileNamePrefix results/STAR/{wildcards.sample} --readFilesIn {input.read1} {input.read2} 
+        mv results/STAR/{wildcards.sample}Aligned.out.sam results/STAR/{wildcards.sample}.sam
+        """
 
 rule filterReads:
     input:
